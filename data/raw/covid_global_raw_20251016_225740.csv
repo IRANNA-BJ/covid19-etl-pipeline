@@ -1,0 +1,2 @@
+updated,cases,todayCases,deaths,todayDeaths,recovered,todayRecovered,active,critical,casesPerOneMillion,deathsPerOneMillion,tests,testsPerOneMillion,population,oneCasePerPeople,oneDeathPerPeople,oneTestPerPeople,activePerOneMillion,recoveredPerOneMillion,criticalPerOneMillion,affectedCountries,extraction_date,data_source,data_type
+1760635516298,704753890,0,7010681,0,675619811,790,22123398,34794,90413,899.4,7026505313,884400.59,7944935131,0,0,0,2784.59,85037.8,4.38,231,2025-10-16 22:57:37.345377,disease.sh,global

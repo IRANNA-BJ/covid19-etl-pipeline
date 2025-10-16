@@ -1,0 +1,143 @@
+# COVID-19 ETL Pipeline Configuration
+# Main configuration file for the ETL pipeline
+
+# API Configuration
+api:
+  base_url: "https://disease.sh/v3/covid-19"
+  rate_limit: 100  # requests per minute
+  timeout: 30  # seconds
+  retry_attempts: 3
+  retry_delay: 1  # seconds between retries
+
+# Storage Configuration
+storage:
+  provider: "aws"  # Options: "aws", "gcp"
+  bucket: "covid-etl-data-bucket"
+  raw_data_prefix: "raw/"
+  processed_data_prefix: "processed/"
+  file_format: "parquet"  # Options: "parquet", "csv", "json"
+
+# AWS Configuration
+aws:
+  region: "us-east-1"
+  access_key_id: ""  # Set via environment variable AWS_ACCESS_KEY_ID
+  secret_access_key: ""  # Set via environment variable AWS_SECRET_ACCESS_KEY
+
+# Google Cloud Platform Configuration
+gcp:
+  project_id: ""  # Set via environment variable GCP_PROJECT_ID
+  credentials_path: ""  # Set via environment variable GOOGLE_APPLICATION_CREDENTIALS
+
+# Database/Data Warehouse Configuration
+database:
+  provider: "redshift"  # Options: "redshift", "bigquery"
+  host: ""  # Set via environment variable DB_HOST
+  port: 5439
+  name: "covid_data"  # Set via environment variable DB_NAME
+  user: ""  # Set via environment variable DB_USER
+  password: ""  # Set via environment variable DB_PASSWORD
+  schema: "public"
+  dataset_id: "covid_data"  # For BigQuery
+
+# Apache Airflow Configuration
+airflow:
+  dag_id: "covid_etl_pipeline"
+  schedule_interval: "@daily"  # Options: "@daily", "@hourly", "0 6 * * *" (cron)
+  start_date: "2024-01-01"
+  catchup: false
+  max_active_runs: 1
+  email_on_failure: true
+  email_on_retry: false
+  retries: 2
+  retry_delay_minutes: 5
+  execution_timeout_hours: 2
+
+# Logging Configuration
+logging:
+  level: "INFO"  # Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "logs/covid_etl.log"
+  max_file_size_mb: 100
+  backup_count: 5
+
+# Data Quality Configuration
+data_quality:
+  enable_validation: true
+  max_null_percentage: 0.1  # 10% maximum null values allowed
+  min_record_count: 100
+  enable_alerts: true
+  alert_email: "data-team@company.com"
+  
+  # Business rule thresholds
+  max_mortality_rate: 0.15  # 15%
+  min_countries_expected: 190
+  min_states_expected: 50
+  max_data_age_hours: 48
+
+# Notification Configuration
+notifications:
+  email:
+    smtp_server: "smtp.company.com"
+    smtp_port: 587
+    username: ""  # Set via environment variable SMTP_USERNAME
+    password: ""  # Set via environment variable SMTP_PASSWORD
+    from_address: "covid-etl@company.com"
+    to_addresses:
+      - "data-team@company.com"
+      - "analytics@company.com"
+  
+  slack:
+    webhook_url: ""  # Set via environment variable SLACK_WEBHOOK_URL
+    channel: "#data-alerts"
+
+# Performance Configuration
+performance:
+  chunk_size: 10000  # Records per batch for database operations
+  max_workers: 4  # For parallel processing
+  memory_limit_gb: 8
+  
+# Data Retention Configuration
+retention:
+  raw_data_days: 7  # Keep raw files for 7 days
+  processed_data_days: 30  # Keep processed files for 30 days
+  log_retention_days: 90
+
+# Feature Flags
+features:
+  enable_historical_data: true
+  historical_days: 30
+  enable_vaccine_data: true
+  enable_state_data: true
+  enable_continent_data: true
+  enable_data_profiling: true
+  enable_anomaly_detection: false
+
+# Environment-specific overrides
+environments:
+  development:
+    logging:
+      level: "DEBUG"
+    data_quality:
+      enable_alerts: false
+    airflow:
+      schedule_interval: "@once"
+      catchup: false
+  
+  staging:
+    storage:
+      bucket: "covid-etl-data-staging"
+    database:
+      name: "covid_data_staging"
+    notifications:
+      email:
+        to_addresses:
+          - "dev-team@company.com"
+  
+  production:
+    logging:
+      level: "INFO"
+    data_quality:
+      enable_alerts: true
+    performance:
+      max_workers: 8
+      memory_limit_gb: 16
